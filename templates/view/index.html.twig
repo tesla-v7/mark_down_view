@@ -1,0 +1,102 @@
+{% extends 'base.html.twig' %}
+{% block stylesheets %}
+<link href="http://jonmiles.github.io/bootstrap-treeview/bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+{% endblock %}
+{% block title %}Hello ViewController!{% endblock %}
+
+{% block javascripts %}
+    <script src="http://jonmiles.github.io/bootstrap-treeview/bower_components/jquery/dist/jquery.js"></script>
+    <script src="http://jonmiles.github.io/bootstrap-treeview/js/bootstrap-treeview.js"></script>
+    <script>
+        const treeData =  JSON.parse("{{ filesTree|e('js') }}");
+        $('.documents .tree').treeview({data: treeData, enableLinks: true, levels: 5});
+
+        $('#input-search').on('change paste keyup', function(){
+            $('.documents .tree').treeview('search', [ $(this).val(), {
+                ignoreCase: true,
+                exactMatch: false,
+                revealResults: true,
+            }]);
+        });
+
+        $('.tree.treeview li.list-group-item.node-').click(function (e) {
+            const url = $('a',this).attr('href');
+            if(!url) return false;
+
+            const fileName = $('a',this).text();
+
+            $('.documents .file .title').html(fileName);
+            $('.documents .file .body').html('Get data');
+
+            $.ajax({url: url}).done(function (dataMark) {
+                $('.documents .file .body').html(dataMark);
+            }).fail(function (error) {
+                $('.documents .file .body').html(error.responseText);
+            });
+            return false;
+        });
+
+        $('.tree.treeview li a').click(function (e) {
+            const url = $(this).attr('href');
+            if(!url) return false;
+
+            const fileName = $(this).text();
+            console.log('a',url);
+
+
+            $('.documents .file .title').html(fileName);
+            $('.documents .file .body').html('Get data');
+
+            $.ajax({url: url}).done(function (dataMark) {
+                $('.documents .file .body').html(dataMark);
+            }).fail(function (error) {
+                $('.documents .file .body').html(error.responseText);
+            });
+            return false;
+        });
+    </script>
+
+{% endblock %}
+
+{% block body %}
+<style>
+    /*.example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }*/
+    /*.example-wrapper code { background: #F5F5F5; padding: 2px 6px; }*/
+    .documents{
+        width: 100%;
+    }
+    .documents .tree{
+        width: 35%;
+        display: inline-block;
+        vertical-align: top;
+    }
+    .documents .file{
+        width: 64%;
+        display: inline-block;
+    }
+    .find{
+        width: 35%;
+    }
+    .documents .file .title{
+        font-size: 10px;
+        color: gray;
+    }
+</style>
+
+<div class="example-wrapper">
+    <h1>Hello {{ controller_name }}! ✅</h1>
+    <div class="form-group find">
+        <label for="input-search" class="sr-only">Search Tree:</label>
+        <input type="input" class="form-control" id="input-search" placeholder="Type to search..." value="">
+    </div>
+    <div class="documents">
+        <div class="tree"></div>
+        <div class="file">
+            <div class="title">
+            </div>
+            <div class="body"></div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
