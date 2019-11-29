@@ -31,6 +31,10 @@ class TreeFilesHelper
         return !in_array($name, $excludedDir);
     }
 
+    private function onlyMdFile(string $name):bool {
+        return (bool)preg_match('/.*\.md$/', $name);
+    }
+
     private function getDir(string $path):array{
         $files = scandir($path);
         return array_combine($files, array_fill(0, count($files), null));
@@ -40,12 +44,12 @@ class TreeFilesHelper
         $files = $this->getDir($path);
         $result = [];
         foreach ($files as $name => $subName){
-            if(!$this->excludedDir($name)){
+            $currentPath = "{$path}/{$name}";
+            if($this->filterName($currentPath, $name)){
                 continue;
             }
-            $currentPath = "{$path}/{$name}";
             $currentUrl = "{$url}/{$name}";
-            $buf = ['text'=>$name, ];
+            $buf = ['text'=> $name, ];
             if(is_dir($currentPath) && $this->excludedDir($name)){
                 $buf['icon'] = "glyphicon glyphicon-folder-open";
                 $buf['nodes'] = $this->readDir($currentPath, $currentUrl);
@@ -78,5 +82,9 @@ class TreeFilesHelper
             }
         }
         return $result;
+    }
+
+    private function filterName(string $fullName, string $name):bool{
+        return !$this->excludedDir($name) || (!is_dir($fullName) && !$this->onlyMdFile($fullName));
     }
 }
