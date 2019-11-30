@@ -13,7 +13,7 @@ class MarkdownHelper
     private $filePathRoot;
     private $allFiles;
 
-    public function __construct(KernelInterface $kernel, TreeFilesHelper $filesHelper)
+    public function __construct(KernelInterface $kernel, FilesTree $filesHelper)
     {
         $this->markdown = new MarkdownExtra();
         $this->markdown->html5 = true;
