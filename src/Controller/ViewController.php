@@ -10,6 +10,10 @@ use App\Service\MarkdownHelper;
 use App\Service\FilesTree;
 
 
+/**
+ * Class ViewController
+ * @package App\Controller
+ */
 class ViewController extends AbstractController
 {
     /**
@@ -34,4 +38,18 @@ class ViewController extends AbstractController
     {
         return new Response($markdown->parseFile('/'.$path));
     }
+
+    /**
+     * @Route("/static/{path}", name="static", requirements={"path"=".+"})
+     * @param string $path
+     * @return Response
+     */
+    public function readFile(string $path, string $p_rootDir, string $p_filePathRoot):Response{
+        $fullFilePath = $p_rootDir . '/static' ."/{$path}";
+        return new Response(file_get_contents($fullFilePath),
+            Response::HTTP_OK,
+            ['content-type' => 'image/svg+xml']
+        );
+    }
+
 }
