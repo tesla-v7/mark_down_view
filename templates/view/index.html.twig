@@ -9,7 +9,7 @@
     <script src="http://jonmiles.github.io/bootstrap-treeview/js/bootstrap-treeview.js"></script>
     <script>
         const treeData =  JSON.parse("{{ filesTree|e('js') }}");
-        $('.documents .tree').treeview({data: treeData, enableLinks: true, levels: 5});
+        $('.documents .tree').treeview({data: treeData, enableLinks: true, levels: 3});
 
         $('#input-search').on('change paste keyup', function(){
             $('.documents .tree').treeview('search', [ $(this).val(), {
@@ -36,13 +36,16 @@
             return false;
         });
 
+        $('.btn.toggle').click(function (e) {
+            $('.documents').toggleClass('narrow');
+            $(this).toggleClass('glyphicon-forward');
+        });
+
         $('.tree.treeview li a').click(function (e) {
             const url = $(this).attr('href');
             if(!url) return false;
 
             const fileName = $(this).text();
-            console.log('a',url);
-
 
             $('.documents .file .title').html(fileName);
             $('.documents .file .body').html('Get data');
@@ -65,33 +68,49 @@
     .documents{
         width: 100%;
     }
-    .documents .tree{
+    .documents.narrow .menu{
+        width: 5px;
+    }
+    .documents .menu{
         width: 35%;
         display: inline-block;
         vertical-align: top;
+        position: relative;
+        overflow: hidden;
+        transition: width 0.2s linear;
+    }
+    .documents .btn{
+        border: 1px solid black;
+    }
+    .documents .tree{
+
     }
     .documents .file{
         width: 64%;
         display: inline-block;
     }
-    .find{
-        width: 35%;
-    }
     .documents .file .title{
         font-size: 10px;
         color: gray;
+    }
+    img{
+        max-width: 800px;
     }
 </style>
 
 <div class="example-wrapper">
     <h1>Документация</h1>
-    <div class="form-group find">
-        <label for="input-search" class="sr-only">Search Tree:</label>
-        <input type="input" class="form-control" id="input-search" placeholder="Type to search..." value="">
-    </div>
+
     <div class="documents">
-        <div class="tree"></div>
+        <div class="menu">
+            <div class="form-group find">
+                <label for="input-search" class="sr-only">Search Tree:</label>
+                <input type="input" class="form-control" id="input-search" placeholder="Type to search..." value="">
+            </div>
+            <div class="tree"></div>
+        </div>
         <div class="file">
+            <div class="btn toggle glyphicon glyphicon-backward "></div>
             <div class="title">
             </div>
             <div class="body"></div>
