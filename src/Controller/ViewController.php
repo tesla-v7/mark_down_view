@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Service\MarkdownHelper;
 use App\Service\FilesTree;
+use Symfony\Component\Process\Process;
 
 
 /**
@@ -46,10 +47,27 @@ class ViewController extends AbstractController
      */
     public function readFile(string $path, string $p_rootDir, string $p_filePathRoot):Response{
         $fullFilePath = $p_rootDir . '/static' ."/{$path}";
-        return new Response(file_get_contents($fullFilePath),
+        $fileContent = 'file not found';
+        if(file_exists($fullFilePath)){
+            $fileContent = file_get_contents($fullFilePath);
+        }
+        return new Response($fileContent,
             Response::HTTP_OK,
             ['content-type' => 'image/svg+xml']
         );
+    }
+
+    /**
+     * @Route("/git/pull", name="git")
+     * @param string $p_rootDir
+     * @param string $p_filePathRoot
+     * @return Response
+     */
+    public function gitPull(string $p_rootDir, string $p_filePathRoot):Response{
+        $fullFileDir = "{$p_rootDir}{$p_filePathRoot}";
+        $process = new Process(['git', 'pull'], $fullFileDir);
+        $process->run();
+        return new Response('');
     }
 
 }
