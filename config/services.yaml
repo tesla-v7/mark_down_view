@@ -14,6 +14,7 @@ services:
         bind:
             string $p_rootDir: '%kernel.project_dir%'
             string $p_filePathRoot: '%env(FilePathRoot)%'
+            string $p_gitFilePathRoot: '%env(GitFilePathRoot)%'
             string $p_umlCliPath: '%env(UmlCliPath)%'
             string $p_imgStaticPath: '%env(ImgStaticPath)%'
             string $p_renderPumlPath: '%env(RenderPumlPath)%'

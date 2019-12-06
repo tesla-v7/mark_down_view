@@ -60,11 +60,11 @@ class ViewController extends AbstractController
     /**
      * @Route("/git/pull", name="git")
      * @param string $p_rootDir
-     * @param string $p_renderPumlPath
+     * @param string $p_gitFilePathRoot
      * @return Response
      */
-    public function gitPull(string $p_rootDir, string $p_renderPumlPath):Response{
-        $fullFileDir = "{$p_rootDir}{$$p_renderPumlPath}";
+    public function gitPull(string $p_rootDir, string $p_gitFilePathRoot):Response{
+        $fullFileDir = "{$p_rootDir}{$p_gitFilePathRoot}";
         $process = new Process(['git', 'pull'], $fullFileDir);
         $process->run();
         return new Response('');
