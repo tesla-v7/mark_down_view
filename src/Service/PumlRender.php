@@ -44,7 +44,7 @@ class PumlRender
         if(file_exists("{$this->rootDir}{$pumlStaticFullName}")){
             return;
         }
-        $command = "cat {$fullFileName} | java -jar {$this->umlCliPath} -tsvg -pipe > {$this->rootDir}{$pumlStaticFullName}";
+        $command = "cat {$fullFileName} | java -jar {$this->umlCliPath} -charset UTF-8 -tsvg -pipe > {$this->rootDir}{$pumlStaticFullName}";
         exec($command);
     }
 
