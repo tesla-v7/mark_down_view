@@ -2,6 +2,9 @@
 
 namespace App\Controller;
 
+use App\Service\PathRepo;
+use App\Service\PumlRender;
+use PhpUnitCoverageTest\BarCov;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,19 +44,25 @@ class ViewController extends AbstractController
     }
 
     /**
-     * @Route("/static/{path}", name="static", requirements={"path"=".+"})
+     * @Route("/static/img/{path}", name="static", requirements={"path"=".+"})
      * @param string $path
      * @return Response
      */
-    public function readFile(string $path, string $p_rootDir, string $p_filePathRoot):Response{
-        $fullFilePath = $p_rootDir . '/static' ."/{$path}";
-        $fileContent = 'file not found';
+    public function readFile(string $path, PathRepo $pathRepo):Response{
+        $fullFilePath = $pathRepo->getImgStaticPath() ."/{$path}";
         if(file_exists($fullFilePath)){
             $fileContent = file_get_contents($fullFilePath);
+            return new Response($fileContent,
+                Response::HTTP_OK,
+                ['content-type' => mime_content_type($fullFilePath)]
+            );
         }
-        return new Response($fileContent,
+
+        $fullErrorFilePath = $pathRepo->getImgStaticPath() ."/not_found.jpg";
+        $fileErrorContent = file_get_contents($fullErrorFilePath);
+        return new Response($fileErrorContent,
             Response::HTTP_OK,
-            ['content-type' => mime_content_type($fullFilePath)]
+            ['content-type' => mime_content_type($fullErrorFilePath)]
         );
     }
 
