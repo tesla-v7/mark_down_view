@@ -7,48 +7,39 @@ namespace App\Service;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class FilesTree
-{
+class FilesTree {
     private $filePathRoot;
     private $urlGenerator;
 
-    public function __construct(string $p_rootDir,
-                                string $p_filePathRoot,
-                                UrlGeneratorInterface $urlGenerator)
-    {
-        $this->filePathRoot = $p_rootDir . $p_filePathRoot;
+    public function __construct(PathRepo $pathRepo,
+                                UrlGeneratorInterface $urlGenerator) {
+        $this->filePathRoot = $pathRepo->getFileDocPath();
         $this->urlGenerator = $urlGenerator;
     }
 
-    public function getDirTree(): array
-    {
+    public function getDirTree(): array {
         return $this->readDir($this->filePathRoot, '');
     }
 
-    public function getAllFiles(): array
-    {
+    public function getAllFiles(): array {
         return $this->findAllFiles($this->filePathRoot);
     }
 
-    private function excludedDir(string $name): bool
-    {
+    private function excludedDir(string $name): bool {
         $excludedDir = ['.', '..'];
         return !in_array($name, $excludedDir);
     }
 
-    private function onlyMdFile(string $name): bool
-    {
+    private function onlyMdFile(string $name): bool {
         return (bool)preg_match('/.*\.md$/', $name);
     }
 
-    private function getDir(string $path): array
-    {
+    private function getDir(string $path): array {
         $files = scandir($path);
         return array_combine($files, array_fill(0, count($files), null));
     }
 
-    private function readDir(string $path, string $url): array
-    {
+    private function readDir(string $path, string $url): array {
         $files = $this->getDir($path);
         $result = [];
         foreach ($files as $name => $subName) {
@@ -73,8 +64,7 @@ class FilesTree
         return $result;
     }
 
-    private function findAllFiles(string $path): array
-    {
+    private function findAllFiles(string $path): array {
         $files = $this->getDir($path);
         $result = [];
         foreach ($files as $name => $non) {
@@ -91,8 +81,7 @@ class FilesTree
         return $result;
     }
 
-    private function filterName(string $fullName, string $name): bool
-    {
+    private function filterName(string $fullName, string $name): bool {
         return !$this->excludedDir($name) || (!is_dir($fullName) && !$this->onlyMdFile($fullName));
     }
 }
