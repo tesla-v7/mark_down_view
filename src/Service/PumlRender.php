@@ -4,63 +4,62 @@
 namespace App\Service;
 
 
-class PumlRender
-{
-    private $rootDir;
-    private $imgStaticPath;
-    private $renderPumlPath;
-    private $umlCliPath;
+class PumlRender {
+    private $rootPath;
+    private $umlCliFullPath;
 
-    private $pumlExtension = '.svg';
+    private $pathRepo;
 
-    private $fileNotFound = 'file_not_found';
+    const PUML_EXTENSION = '.svg';
+
+    const FILE_NOT_FOUNT_PATH = '/static/img/not_found.jpg';
 
 
-    public function __construct(string $p_rootDir,
-                                string $p_imgStaticPath,
-                                string $p_renderPumlPath,
-                                string $p_umlCliPath)
-    {
-        $this->rootDir = $p_rootDir;
-        $this->umlCliPath = "{$p_rootDir}{$p_umlCliPath}/plantuml.jar";
-        $this->renderPumlPath = $p_renderPumlPath;
-        $this->imgStaticPath = $p_imgStaticPath;
+    public function __construct(PathRepo $pathRepo) {
+        $this->umlCliFullPath = "{$pathRepo->getRenderCliPath()}/plantuml.jar";
+        $this->pathRepo = $pathRepo;
+        $this->rootPath = $pathRepo->getRootPath();
     }
 
-    public function getFileName(string $documentPath):string {
+    public function getFileName(string $documentPath): string {
         $realPath = realpath($documentPath);
-        if($realPath === false){
-            return '/static/img/not_found.jpg';
+        if ($realPath === false) {
+            return $this::FILE_NOT_FOUNT_PATH;
         }
-
-        $pumlHashFileName = $this->getHashName($realPath);
-        $pumlStaticFullName = "{$this->renderPumlPath}/{$pumlHashFileName}{$this->pumlExtension}";
+        try {
+            $pumlHashFileName = $this->getHashName($realPath);
+        } catch (\Exception $e) {
+            return $this::FILE_NOT_FOUNT_PATH;
+        }
+        $pumlStaticFullName = $this->getFullName($pumlHashFileName);
         $this->convertUmlToSvg($realPath, $pumlStaticFullName);
 
         return $pumlStaticFullName;
     }
 
     private function convertUmlToSvg(string $fullFileName, string $pumlStaticFullName) {
-        if(file_exists("{$this->rootDir}{$pumlStaticFullName}")){
+        $pumlRenderedPath = "{$this->rootPath}{$pumlStaticFullName}";
+        if (file_exists($pumlRenderedPath)) {
             return;
         }
-        $command = "cat {$fullFileName} | java -jar {$this->umlCliPath} -charset UTF-8 -tsvg -pipe > {$this->rootDir}{$pumlStaticFullName}";
+        $command = "cat {$fullFileName} | java -jar {$this->umlCliFullPath} -charset UTF-8 -tsvg -pipe > {$pumlRenderedPath}";
         exec($command);
     }
 
-    private function getHashName(string $pumlFullName):string {
+    private function getHashName(string $pumlFullName): string {
         $pumlFileBody = $this->readFile($pumlFullName);
-        if($pumlFileBody === $this->fileNotFound){
-            return $this->fileNotFound;
-        }
-        return hash("sha256",$pumlFileBody);
+        return hash("sha256", $pumlFileBody);
     }
 
-    private function readFile(string $pumlFullName):string {
-        if(!file_exists($pumlFullName)){
-            return $this->fileNotFound;
+    private function readFile(string $pumlFullName): string {
+        if (!file_exists($pumlFullName)) {
+            throw new \Exception($this::FILE_NOT_FOUNT_PATH);
         }
         return file_get_contents("{$pumlFullName}");
+    }
+
+    private function getFullName(string $hashName): string {
+        return "{$this->pathRepo->getPathOfRenderedOfPuml(false)}/{$hashName}" . $this::PUML_EXTENSION;
     }
 
 }
