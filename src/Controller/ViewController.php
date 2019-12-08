@@ -53,7 +53,7 @@ class ViewController extends AbstractController
         }
         return new Response($fileContent,
             Response::HTTP_OK,
-            ['content-type' => 'image/svg+xml']
+            ['content-type' => mime_content_type($fullFilePath)]
         );
     }
 
